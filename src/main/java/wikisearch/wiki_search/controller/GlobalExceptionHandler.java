@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleBadRequest(Exception ex) {
+    public ResponseEntity<String> handleBadRequest(IllegalArgumentException ex) {
         return new ResponseEntity<>("Ошибка 400 (и нечего гнать на сервер): " + ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
