@@ -19,6 +19,13 @@ public class SearchHistoryCrudController {
         return historyRepo.findAll();
     }
 
+    @GetMapping("/by-history-term/{term}")
+    public List<SearchHistory> getByTerm(@PathVariable String term) {
+        return historyRepo.findAll().stream()
+            .filter(h -> h.getSearchTerm() != null && h.getSearchTerm().equals(term))
+            .toList();
+    }
+
     @GetMapping("/{id}")
     public SearchHistory getById(@PathVariable Long id) {
         return historyRepo.findById(id).orElse(null);
