@@ -70,24 +70,28 @@ public class WikiArticleService {
     }
 
     public WikiArticleDto createArticle(WikiArticle article) {
+        cache.clear();
         WikiArticle saved = articleRepo.save(article);
-        cache.clear(); // Очистить кэш, чтобы не было устаревших данных
+        cache.put("article:" + saved.getId(), new WikiArticleDto(saved.getId(), saved.getTitle(), saved.getContent()));
         return new WikiArticleDto(saved.getId(), saved.getTitle(), saved.getContent());
     }
 
     public WikiArticleDto updateArticle(Long id, WikiArticle article) {
+        cache.clear();
         article.setId(id);
         WikiArticle saved = articleRepo.save(article);
-        cache.clear();
+        cache.put("article:" + saved.getId(), new WikiArticleDto(saved.getId(), saved.getTitle(), saved.getContent()));
         return new WikiArticleDto(saved.getId(), saved.getTitle(), saved.getContent());
     }
 
     public void deleteArticle(Long id) {
-        articleRepo.deleteById(id);
         cache.clear();
+        articleRepo.deleteById(id);
+        cache.get("article:" + id);
     }
 
     public WikiArticleDto searchAndSaveFromWiki(String term) {
+        cache.clear();
         String url = "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=true&explaintext=true&titles=" + term;
         String response = new org.springframework.web.client.RestTemplate().getForObject(url, String.class);
         String extract;
@@ -98,7 +102,7 @@ public class WikiArticleService {
         }
         WikiArticle article = new WikiArticle(term, extract);
         WikiArticle saved = articleRepo.save(article);
-        cache.clear();
+        cache.put("article:" + saved.getId(), new WikiArticleDto(saved.getId(), saved.getTitle(), saved.getContent()));
         return new WikiArticleDto(saved.getId(), saved.getTitle(), saved.getContent());
     }
 }
